@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=앱 검색기
+Name[en]=App Launcher
+Comment=JAN OS 앱 검색기
+Exec=python3 /usr/local/bin/jan-launcher.py
+Icon=system-search
+Terminal=false
+Categories=System;
