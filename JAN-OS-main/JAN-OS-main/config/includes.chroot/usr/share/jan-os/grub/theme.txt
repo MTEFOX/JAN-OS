@@ -1,0 +1,83 @@
+# ============================================
+#   JAN OS - GRUB 부팅화면 테마
+#   색상: 어두운 보라 + 검정
+# ============================================
+
+# 전체 배경
+desktop-color: "#0a0010"
+desktop-image: ""
+
+# 제목
+title-text: "JAN OS"
+title-color: "#9933ff"
+title-font: "Unifont Regular 24"
+
+# 터미널 박스
+terminal-box: "terminal_box_*.png"
+terminal-font: "Unifont Regular 14"
+terminal-left: "15%"
+terminal-top: "35%"
+terminal-width: "70%"
+terminal-height: "30%"
+terminal-border: "3"
+
+# 메뉴 색상
++ boot_menu {
+    left = 25%
+    top = 40%
+    width = 50%
+    height = 22%
+    item_color = "#cccccc"
+    item_font = "Unifont Regular 14"
+    selected_item_color = "#ffffff"
+    selected_item_font = "Unifont Regular 14"
+    selected_background_color = "#4400aa"
+    item_height = 28
+    item_padding = 8
+    item_spacing = 4
+    scrollbar = false
+}
+
+# 텍스트 박스들
++ label {
+    top = 20%
+    left = 0
+    width = 100%
+    align = "center"
+    id = "__title__"
+    text = "JAN OS"
+    color = "#9933ff"
+    font = "Unifont Regular 32"
+}
+
++ label {
+    top = 28%
+    left = 0
+    width = 100%
+    align = "center"
+    text = "Debian Based Custom OS"
+    color = "#550088"
+    font = "Unifont Regular 12"
+}
+
++ progress_bar {
+    id = "__timeout__"
+    left = 25%
+    top = 75%
+    width = 50%
+    height = 4
+    fg_color = "#9933ff"
+    bg_color = "#1a0028"
+    border_color = "#330066"
+    text = ""
+}
+
++ label {
+    top = 80%
+    left = 0
+    width = 100%
+    align = "center"
+    text = "Press ENTER to boot"
+    color = "#440066"
+    font = "Unifont Regular 11"
+}
