@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=메모장
+Name[en]=Notepad
+Comment=JAN OS 메모장
+Exec=python3 /usr/local/bin/jan-notepad.py
+Icon=/usr/share/jan-os/jan-notepad.png
+Terminal=false
+Categories=Utility;TextEditor;

@@ -1,0 +1,445 @@
+
+ # ============================================
+
+#   JAN OS - 디자인 전체 적용 훅
+
+#   0200-jan-design.hook.chroot
+
+# ============================================
+
+
+set -e
+
+echo "[JAN OS] 디자인 적용 시작좀하고..."
+
+
+# ── 디렉토리 생성 ─────────────f─f───────────
+
+mkdir -p /usr/share/jan-os
+
+mkdir -p /usr/share/sddm/themes/jan-sddm
+
+mkdir -p /usr/share/grub/themes/jan-grub
+
+mkdir -p /usr/share/color-schemes
+
+mkdir -p /usr/share/wallpapers/jan-os/contents/images
+
+mkdir -p /boot/grub/themes/jan-grub
+
+
+
+# ── SDDM 테마 적용 ────────────────────────
+
+echo "[JAN OS] SDDM 로그인 테마 적용좀하고..."
+
+cp /usr/share/jan-os/sddm/Main.qml /usr/share/sddm/themes/jan-sddm/
+
+cp /usr/share/jan-os/sddm/theme.conf /usr/share/sddm/themes/jan-sddm/
+
+
+# SDDM 기본 테마 설정
+
+mkdir -p /etc/sddm.conf.d
+
+cat > /etc/sddm.conf.d/jan-theme.conf << 'EOF'
+
+[Theme]
+
+Current=jan-sddm
+
+
+[General]
+
+Numlock=on
+
+EOF
+
+
+# ── GRUB 테마 적용 ────────────────────────
+
+echo "[JAN OS] GRUB 부팅 테마 적용좀하고..."
+
+cp /usr/share/jan-os/grub/theme.txt /usr/share/grub/themes/jan-grub/
+
+cp /usr/share/jan-os/logo.png /usr/share/grub/themes/jan-grub/ 2>/dev/null || true
+
+
+# GRUB 설정
+
+cat > /etc/default/grub << 'EOF'
+
+GRUB_DEFAULT=0
+
+GRUB_TIMEOUT=5
+
+GRUB_DISTRIBUTOR="JAN OS"
+
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+
+GRUB_CMDLINE_LINUX=""
+
+GRUB_BACKGROUND=""
+
+GRUB_THEME="/usr/share/grub/themes/jan-grub/theme.txt"
+
+GRUB_GFXMODE="1920x1080,auto"
+
+GRUB_GFXPAYLOAD_LINUX=keep
+
+EOF
+
+
+update-grub 2>/dev/null || true
+
+
+# ── KDE 색상 테마 적용 ────────────────────
+
+echo "[JAN OS] KDE 색상 테마 적용좀하고..."
+
+cp /usr/share/jan-os/kde/JanOS.colors /usr/share/color-schemes/
+
+
+# ── KDE 기본 설정 (모든 사용자) ───────────
+
+mkdir -p /etc/skel/.config
+
+
+cat > /etc/skel/.config/kdeglobals << 'EOF'
+
+[General]
+
+ColorScheme=JanOS
+
+
+[KDE]
+
+LookAndFeelPackage=org.kde.breeze.desktop
+
+widgetStyle=Breeze
+
+
+[Colors:Window]
+
+BackgroundNormal=10,0,18
+
+ForegroundNormal=220,200,255
+
+EOF
+
+
+# KDE 작업표시줄 설정
+
+cat > /etc/skel/.config/plasmashellrc << 'EOF'
+
+[PlasmaViews][Panel 1]
+
+thickness=44
+
+EOF
+
+
+# ── 배경화면 설정 ─────────────────────────
+
+echo "[JAN OS] 배경화면 설정좀하고..."
+
+
+# 배경화면 wallpapers 폴더에도 복사
+
+cp /usr/share/jan-os/wallpaper.png /usr/share/wallpapers/jan-os/contents/images/wallpaper.png
+
+
+# 방법 1 - 설정파일 방식
+
+cat > /etc/skel/.config/plasma-org.kde.plasma.desktop-appletsrc << 'EOF'
+
+[Containments][1]
+
+activityId=
+
+formfactor=0
+
+immutability=1
+
+lastScreen=0
+
+location=0
+
+plugin=org.kde.plasma.folder
+
+wallpaperplugin=org.kde.image
+
+
+[Containments][1][Wallpaper][org.kde.image][General]
+
+Image=/usr/share/jan-os/wallpaper.png
+
+Color=10,0,18
+
+
+[Containments][2]
+
+formfactor=2
+
+immutability=1
+
+lastScreen=0
+
+location=4
+
+plugin=org.kde.panel
+
+
+[Containments][2][Applets][1]
+
+immutability=1
+
+plugin=org.kde.plasma.kickoff
+
+
+[Containments][2][Applets][1][Configuration][General]
+
+icon=/usr/share/jan-os/logo.png
+
+
+[Containments][2][Applets][2]
+
+immutability=1
+
+plugin=org.kde.plasma.taskmanager
+
+
+[Containments][2][Applets][3]
+
+immutability=1
+
+plugin=org.kde.plasma.systemtray
+
+
+[Containments][2][Applets][4]
+
+immutability=1
+
+plugin=org.kde.plasma.digitalclock
+
+EOF
+
+
+# 방법 2 - 스크립트 방식 (보완용)
+
+mkdir -p /etc/skel/.config/autostart
+
+
+cat > /etc/skel/.config/jan-wallpaper-fix.sh << 'EOF'
+
+#!/bin/bash
+
+sleep 5
+
+plasma-apply-wallpaperimage /usr/share/jan-os/wallpaper.png
+
+EOF
+
+
+chmod +x /etc/skel/.config/jan-wallpaper-fix.sh
+
+
+cat > /etc/skel/.config/autostart/jan-wallpaper.desktop << 'EOF'
+
+[Desktop Entry]
+
+Type=Application
+
+Name=JAN OS Wallpaper Fixer
+
+Exec=/bin/bash /home/user/.config/jan-wallpaper-fix.sh
+
+Terminal=false
+
+X-KDE-autostart-after=panel
+
+EOF
+
+
+# ── 바탕화면 바로가기 생성 ─────────────────
+
+echo "[JAN OS] 바탕화면 바로가기 생성좀하고..."
+
+mkdir -p /etc/skel/Desktop
+
+cp /usr/share/applications/mtefox.desktop /etc/skel/Desktop/
+
+cp /usr/share/applications/jan-files.desktop /etc/skel/Desktop/
+
+cp /usr/share/applications/jan-notepad.desktop /etc/skel/Desktop/
+
+cp /usr/share/applications/kane-stream.desktop /etc/skel/Desktop/
+
+chmod +x /etc/skel/Desktop/*.desktop
+
+
+echo "[JAN OS] 잠금화면 배경 설정좀하고..."
+
+cat >> /etc/skel/.config/kscreenlockerrc << 'EOF'
+
+[Greeter][Wallpaper][org.kde.image][General]
+
+Image=/usr/share/jan-os/lockscreen.png
+
+EOF
+
+
+# ── 바탕화면 설치 아이콘 생성 (Calamares) ─────────────────
+echo "[JAN OS] 바탕화면 설치 아이콘 생성 중..."
+
+mkdir -p /etc/skel/Desktop
+
+cat > /etc/skel/Desktop/install-janos.desktop << 'EOF'
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=JAN OS 설치
+Name[en]=Install JAN OS
+Comment=JAN OS를 이 컴퓨터에 설치합니다.
+Exec=sudo calamares
+Icon=calamares
+Terminal=false
+Categories=System;
+EOF
+
+# 실행 권한 부여 (이걸 안 하면 아이콘이 작동 안 해요!)
+chmod +x /etc/skel/Desktop/install-janos.desktop
+
+
+# ── Plymouth 부팅 스플래시 ─────────────────
+
+echo "[JAN OS] 부팅 스플래시 설정좀하고..."
+
+apt-get install -y plymouth plymouth-themes 2>/dev/null || true
+
+
+mkdir -p /usr/share/plymouth/themes/jan-splash
+
+cat > /usr/share/plymouth/themes/jan-splash/jan-splash.plymouth << 'EOF'
+
+[Plymouth Theme]
+
+Name=JAN OS Splash
+
+Description=JAN OS 부팅 스플래시
+
+ModuleName=script
+
+
+[script]
+
+ImageDir=/usr/share/plymouth/themes/jan-splash
+
+ScriptFile=/usr/share/plymouth/themes/jan-splash/jan-splash.script
+
+EOF
+
+
+cat > /usr/share/plymouth/themes/jan-splash/jan-splash.script << 'SCRIPT'
+
+# JAN OS Plymouth 스플래시 스크립트
+
+Window.SetBackgroundTopColor(0.04, 0.0, 0.06);
+
+Window.SetBackgroundBottomColor(0.02, 0.0, 0.03);
+
+
+logo_image = Image("logo.png");
+
+logo_sprite = Sprite(logo_image);
+
+logo_sprite.SetX(Window.GetWidth() / 2 - logo_image.GetWidth() / 2);
+
+logo_sprite.SetY(Window.GetHeight() / 2 - logo_image.GetHeight() / 2 - 60);
+
+
+# JAN OS 텍스트
+
+title_image = Image.Text("JAN OS", 0.6, 0.2, 1.0);
+
+title_sprite = Sprite(title_image);
+
+title_sprite.SetX(Window.GetWidth() / 2 - title_image.GetWidth() / 2);
+
+title_sprite.SetY(Window.GetHeight() / 2 + 60);
+
+
+# 진행바
+
+progress_box = Image(400, 4);
+
+progress_box.Rectangle(0, 0, 400, 4, 0.1, 0.0, 0.15, 1.0);
+
+progress_box_sprite = Sprite(progress_box);
+
+progress_box_sprite.SetX(Window.GetWidth() / 2 - 200);
+
+progress_box_sprite.SetY(Window.GetHeight() / 2 + 100);
+
+
+progress_bar = Image(0, 4);
+
+progress_bar_sprite = Sprite();
+
+progress_bar_sprite.SetX(Window.GetWidth() / 2 - 200);
+
+progress_bar_sprite.SetY(Window.GetHeight() / 2 + 100);
+
+
+fun boot_progress_cb(duration, progress) {
+
+    bar_width = Math.Int(400 * progress);
+
+    if (bar_width > 0) {
+
+        progress_bar = Image(bar_width, 4);
+
+        progress_bar.Rectangle(0, 0, bar_width, 4, 0.6, 0.2, 1.0, 1.0);
+
+        progress_bar_sprite.SetImage(progress_bar);
+
+    }
+
+}
+
+Plymouth.SetBootProgressFunction(boot_progress_cb);
+
+SCRIPT
+
+
+# 로고 심볼릭 링크
+
+cp /usr/share/jan-os/logo.png \
+
+    /usr/share/plymouth/themes/jan-splash/logo.png 2>/dev/null || true
+
+
+# Plymouth 기본 테마 설정 (한 줄로 깔끔하게!)
+update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/jan-splash/jan-splash.plymouth 100 || true
+
+# 테마 적용 확인
+update-alternatives --set default.plymouth /usr/share/plymouth/themes/jan-splash/jan-splash.plymouth || true
+
+# 커널 이미지 업데이트 (로고가 실제로 뜨게 만드는 마법)
+update-initramfs -u
+
+
+update-alternatives --set default.plymouth /usr/share/plymouth/themes/jan-splash/jan-splash.plymouth 2>/dev/null || true
+
+
+
+# initramfs 업데이트
+
+update-initramfs -u 2>/dev/null || true
+
+
+echo ""
+
+echo "[JAN OS] 디자인 적용 완료!"
+
+echo "" 
