@@ -3,7 +3,7 @@
 ## JAN-OS 다운로드 (ISO)
 아 운영체제는 뭉탱이 용량(2.5GB)이 커서 외부 링크로 공유하겠습니다.
 
-[JAN-OS ISO 다운로드 받기](https://drive.google.com/file/d/1CRReQkZwX00ffNZsVbLjhNv_s8Axs_S5/view?usp=sharing)
+[JAN-OS ISO 다운로드 받기(https://drive.google.com/file/d/16BfWNn5P9qav9UBblRiilW0MMmq8bfnE/view?usp=sharing)
 
 
 ## 아사람의 작품입니다.
